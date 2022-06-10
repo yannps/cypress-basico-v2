@@ -41,7 +41,7 @@ describe('Central de Atendimento ao Cliente TAT', function(){
         cy.get('#firstName').type('Yann')
         cy.get('#lastName').type('Pereira')
         cy.get('#email').type('yann@gmail.com')
-        cy.get('#phone-checkbox').click()
+        cy.get('#phone-checkbox').check()
         cy.get('#open-text-area').type('aaaa')
         cy.contains('button', 'Enviar').click()
 
@@ -88,6 +88,39 @@ describe('Central de Atendimento ao Cliente TAT', function(){
             cy.wrap($radio).check()
             cy.wrap($radio).should('be.checked')
         })
+    })
+
+    it('marca ambos checkboxes, depois desmarca o último', function(){
+        cy.get('input[type="checkbox"]').check().should('be.checked').last().uncheck().should('not.be.checked')
+    })
+
+    it('seleciona um arquivo da pasta fixtures', function(){
+        cy.get('input[type="file"]').should('not.have.value').selectFile('./cypress/fixtures/example.json').should(function($input){
+            expect($input[0].files[0].name).to.equal('example.json')
+        })
+    })
+
+    it('seleciona um arquivo simulando um drag-and-drop', function(){
+        cy.get('input[type="file"]').should('not.have.value').selectFile('./cypress/fixtures/example.json', {action: 'drag-drop'}).should(function($input){
+            expect($input[0].files[0].name).to.equal('example.json')
+        })
+    })
+
+    it('seleciona um arquivo utilizando uma fixture para a qual foi dada um alias', function(){
+        cy.fixture('example.json').as('sampleFile')
+        cy.get('input[type="file"]').selectFile('@sampleFile').should(function($input){
+            expect($input[0].files[0].name).to.equal('example.json')
+        })
+    })
+
+    it('verifica que a política de privacidade abre em outra aba sem a necessidade de um clique', function(){
+        cy.get('#privacy a').should('have.attr', 'target', '_blank')
+    })
+
+    it.only('acessa a página da política de privacidade removendo o target e então clicando no link', function(){
+        cy.get('#privacy a').invoke('removeAttr', 'target').click()
+
+        cy.contains('Talking About Testing').should('be.visible')
     })
 
 })
